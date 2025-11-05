@@ -1,0 +1,110 @@
+app:
+  name: "Binance Quant Trading"
+  version: "2.0.0"
+  environment: "${ENVIRONMENT:-development}"
+
+binance:
+  api_key: "${BINANCE_API_KEY}"
+  secret_key: "${BINANCE_SECRET_KEY}"
+  testnet: "${TESTNET:-true}"
+  sandbox_mode: "${SANDBOX_MODE:-true}"
+  rate_limit: 
+    requests_per_second: 10
+    order_per_second: 5
+  timeout: 30
+
+trading:
+  symbols:
+    - "BTCUSDT"
+    - "ETHUSDT"
+    - "ADAUSDT"
+  leverage: 10
+  max_position_size: 1000
+  total_capital: 10000
+  risk_per_trade: 0.02
+  max_concurrent_positions: 3
+  stop_loss_percent: 0.03
+  take_profit_percent: 0.06
+  trailing_stop: true
+  trailing_stop_activation: 0.02
+  trading_hours:
+    start: "00:00"
+    end: "23:59"
+  cooldown_period: 300  # 交易冷却时间(秒)
+
+strategies:
+  enabled:
+    - "rsi_strategy"
+    - "ma_crossover"
+    - "bollinger_bands"
+    
+  rsi_strategy:
+    timeframe: "15m"
+    rsi_period: 14
+    rsi_oversold: 30
+    rsi_overbought: 70
+    volume_threshold: 1000000
+
+  ma_crossover:
+    timeframe: "1h"
+    fast_ma: 10
+    slow_ma: 30
+    volume_filter: true
+
+  bollinger_bands:
+    timeframe: "30m"
+    period: 20
+    std_dev: 2
+    use_volume: true
+
+risk_management:
+  max_daily_loss: 0.05
+  max_drawdown: 0.15
+  position_sizing: "kelly"  # fixed, kelly, optimal_f
+  correlation_check: true
+  volatility_filter: true
+  volatility_period: 20
+  volatility_threshold: 0.02
+
+database:
+  url: "sqlite:///data/trading.db"
+  backup:
+    enabled: true
+    interval_hours: 24
+    keep_backups: 7
+
+notifications:
+  telegram:
+    enabled: false
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    chat_id: "${TELEGRAM_CHAT_ID}"
+    events:
+      - "order_filled"
+      - "stop_loss"
+      - "take_profit"
+      - "error"
+  
+  email:
+    enabled: false
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: "${EMAIL_USERNAME}"
+    password: "${EMAIL_PASSWORD}"
+    to_email: "${ALERT_EMAIL}"
+
+web_ui:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8081
+  auth_required: true
+  username: "${WEB_USERNAME:-admin}"
+  password: "${WEB_PASSWORD:-admin123}"
+
+monitoring:
+  metrics_enabled: true
+  health_check_port: 8080
+  performance_metrics:
+    - "trades_per_hour"
+    - "win_rate"
+    - "sharpe_ratio"
+    - "max_drawdown"
