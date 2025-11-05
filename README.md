@@ -17,7 +17,7 @@
 ### 1. 环境准备
 
 ```bash
-git clone <repository>
+git clone 本仓库
 cd binance-quant-trading
 cp .env.example .env
 
