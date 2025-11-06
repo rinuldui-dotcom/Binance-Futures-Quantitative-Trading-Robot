@@ -73,3 +73,26 @@ def create_web_app(trading_app):
         return positions
     
     return app
+
+# 添加AI相关路由
+@app.get("/ai/status")
+async def get_ai_status(_: str = Depends(authenticate)):
+    ai_manager = trading_app.components['ai_manager']
+    return {
+        "active_client": ai_manager.get_active_client_info(),
+        "available_clients": ai_manager.get_available_clients()
+    }
+
+@app.post("/ai/switch-client/{client_name}")
+async def switch_ai_client(client_name: str, _: str = Depends(authenticate)):
+    ai_manager = trading_app.components['ai_manager']
+    success = ai_manager.switch_client(client_name)
+    return {"success": success, "active_client": client_name}
+
+@app.get("/ai/signal/{symbol}")
+async def get_ai_signal(symbol: str, _: str = Depends(authenticate)):
+    ai_manager = trading_app.components['ai_manager']
+    market_data = {}  # 获取实际市场数据
+    portfolio = {}    # 获取实际持仓数据
+    signal = await ai_manager.get_trading_signal(symbol, market_data, portfolio)
+    return signal
