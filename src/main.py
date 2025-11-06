@@ -17,6 +17,65 @@ from database.database import Database
 from notifications.notification_manager import NotificationManager
 from web_ui.app import create_web_app
 import uvicorn
+# 在导入部分添加
+from ai.ai_manager import AIManager
+
+class QuantTradingApp:
+    def __init__(self):
+        self.config = ConfigLoader.load_config()
+        self.logger = setup_logging(self.config)
+        self.running = False
+        self.start_time = None
+        
+        # 初始化组件
+        self.components = {}
+        self.setup_components()
+        
+    def setup_components(self):
+        """初始化所有组件"""
+        try:
+            # 数据库
+            self.components['database'] = Database(self.config)
+            
+            # AI管理器
+            self.components['ai_manager'] = AIManager(self.config)
+            
+            # 通知管理器
+            self.components['notifier'] = NotificationManager(self.config)
+            
+            # 币安客户端
+            self.components['binance'] = BinanceClient(self.config, self.components['notifier'])
+            
+            # 风险管理器
+            self.components['risk_manager'] = RiskManager(
+                self.config, 
+                self.components['database'],
+                self.components['notifier']
+            )
+            
+            # 仓位管理器
+            self.components['position_manager'] = PositionManager(
+                self.config,
+                self.components['binance'],
+                self.components['database'],
+                self.components['risk_manager']
+            )
+            
+            # 策略管理器 (传入AI管理器)
+            self.components['strategy_manager'] = StrategyManager(
+                self.config,
+                self.components['binance'],
+                self.components['position_manager'],
+                self.components['risk_manager'],
+                self.components['database'],
+                self.components['ai_manager']  # 新增参数
+            )
+            
+            self.logger.info("所有组件初始化完成")
+            
+        except Exception as e:
+            self.logger.error(f"组件初始化失败: {e}")
+            raise
 
 load_dotenv()
 
