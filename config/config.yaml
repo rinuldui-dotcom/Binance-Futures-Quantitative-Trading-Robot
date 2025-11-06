@@ -66,6 +66,20 @@ risk_management:
   volatility_period: 20
   volatility_threshold: 0.02
 
+  strategies:
+  enabled:
+    - "rsi_strategy"
+    - "ma_crossover" 
+    - "bollinger_bands"
+    - "ai_trading"  # 新增AI交易策略
+
+# 新增AI交易策略配置
+ai_trading:
+  enabled: true
+  decision_interval: 300
+  max_ai_positions: 2
+  risk_adjustment: true
+
 database:
   url: "sqlite:///data/trading.db"
   backup:
