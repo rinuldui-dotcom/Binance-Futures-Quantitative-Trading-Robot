@@ -1,0 +1,54 @@
+ai_models:
+  glm4:
+    enabled: true
+    api_endpoint: "https://glm4.deno.dev"
+    api_key: "200103"
+    model_name: "glm-4"
+    max_tokens: 1000
+    temperature: 0.7
+    timeout: 30
+
+  openai:
+    enabled: false
+    api_key: "${OPENAI_API_KEY}"
+    base_url: "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
+    model_name: "gpt-4"
+    max_tokens: 1000
+    temperature: 0.7
+    timeout: 30
+
+  anthropic:
+    enabled: false
+    api_key: "${ANTHROPIC_API_KEY}"
+    model_name: "claude-3-sonnet-20240229"
+    max_tokens: 1000
+    temperature: 0.7
+    timeout: 30
+
+trading_ai:
+  # AI交易决策配置
+  decision_interval: 300  # AI决策间隔(秒)
+  confidence_threshold: 0.7  # 置信度阈值
+  max_ai_position_size: 0.3  # AI最大仓位比例
+  risk_adjustment_enabled: true
+  
+  # 市场分析配置
+  analysis_timeframes:
+    - "1h"
+    - "4h"
+    - "1d"
+  
+  # 技术指标权重
+  indicator_weights:
+    trend: 0.3
+    momentum: 0.25
+    volatility: 0.2
+    volume: 0.15
+    market_sentiment: 0.1
+  
+  # 风险管理规则
+  risk_rules:
+    max_leverage: 20
+    max_drawdown_ai: 0.1
+    daily_loss_limit: 0.05
+    correlation_threshold: 0.8
