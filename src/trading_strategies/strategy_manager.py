@@ -7,6 +7,68 @@ from .base_strategy import BaseStrategy
 from .rsi_strategy import RSIStrategy
 from .ma_crossover_strategy import MACrossoverStrategy
 from .bollinger_bands_strategy import BollingerBandsStrategy
+from .ai_trading_strategy import AITradingStrategy  # 新增导入
+
+class StrategyManager:
+    def __init__(self, config, binance_client, position_manager, risk_manager, database, ai_manager):  # 新增ai_manager参数
+        self.config = config
+        self.binance_client = binance_client
+        self.position_manager = position_manager
+        self.risk_manager = risk_manager
+        self.database = database
+        self.ai_manager = ai_manager  # 新增
+        self.logger = logging.getLogger(__name__)
+        
+        self.strategies: Dict[str, BaseStrategy] = {}
+        self.running = False
+        
+    async def load_strategy(self, strategy_name: str):
+        """加载策略"""
+        try:
+            if strategy_name == 'ai_trading':
+                strategy_class = AITradingStrategy
+            else:
+                strategy_class = self.get_strategy_class(strategy_name)
+                
+            if not strategy_class:
+                self.logger.error(f"未知策略: {strategy_name}")
+                return
+                
+            strategy_config = self.config['strategies'].get(strategy_name, {})
+            
+            if strategy_name == 'ai_trading':
+                strategy = strategy_class(
+                    strategy_config,
+                    self.binance_client,
+                    self.position_manager,
+                    self.risk_manager,
+                    self.database,
+                    self.ai_manager  # 传入AI管理器
+                )
+            else:
+                strategy = strategy_class(
+                    strategy_config,
+                    self.binance_client,
+                    self.position_manager,
+                    self.risk_manager,
+                    self.database
+                )
+            
+            self.strategies[strategy_name] = strategy
+            self.logger.info(f"策略加载成功: {strategy_name}")
+            
+        except Exception as e:
+            self.logger.error(f"加载策略 {strategy_name} 失败: {e}")
+            
+    def get_strategy_class(self, strategy_name: str):
+        """获取策略类"""
+        strategy_map = {
+            'rsi_strategy': RSIStrategy,
+            'ma_crossover': MACrossoverStrategy,
+            'bollinger_bands': BollingerBandsStrategy,
+            'ai_trading': AITradingStrategy  # 新增
+        }
+        return strategy_map.get(strategy_name)
 
 class StrategyManager:
     def __init__(self, config, binance_client, position_manager, risk_manager, database):
